@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  	
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1e1e2e">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wedding Card Studio Pro Max</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@700&family=Yatra+One&family=Caveat:wght@700&family=Gotu&family=Mukta:wght@700&display=swap" rel="stylesheet">
+    <style>
+        /* Base Dark Theme */
+        body { 
+            font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 0; 
+            background-color: #121212; color: #eee; display: flex; flex-direction: column; height: 100vh; overflow: hidden;
+            user-select: none; transition: background 0.3s, color 0.3s;
+        }
+        
+        /* Thin Top Toolbar */
+        .top-toolbar {
+            width: 100%; height: 50px; background: #1a1a1a;
+            display: flex; align-items: center; padding: 0 10px; box-sizing: border-box;
+            gap: 8px; overflow-x: auto; z-index: 30; border-bottom: 1px solid #333;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: background 0.3s;
+        }
+        .top-toolbar::-webkit-scrollbar { height: 0; }
+        .top-toolbar h2 { 
+            color: #ff5252; margin: 0; font-size: 16px; white-space: nowrap; margin-right: 5px; 
+            cursor: pointer; user-select: none; transition: 0.2s;
+        }
+        .top-toolbar h2:hover { text-shadow: 0 0 10px rgba(255,82,82,0.6); }
+        
+        .top-toolbar {
+            width: 100%; height: 50px; background: #1a1a1a;
+            display: flex; align-items: center; padding: 0 10px; box-sizing: border-box;
+            gap: 8px; overflow-x: auto; z-index: 30; border-bottom: 1px solid #333;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: background 0.3s;
+            -webkit-overflow-scrolling: touch; scrollbar-width: none;
+        }
+        .top-toolbar::-webkit-scrollbar { display: none; }
+
+        .capsule-btn {
+            background: #333; color: white; border: 1px solid #555; padding: 5px 14px;
+            border-radius: 30px; white-space: nowrap; cursor: pointer; font-size: 13px;
+            font-weight: 600; transition: 0.2s; display: flex; align-items: center; gap: 4px;
+            flex-shrink: 0; /* यह मोबाइल पर सिकुड़ने से रोकेगा और स्क्रॉल चालू करेगा */
+        }
+        .capsule-btn:hover, .capsule-btn.active { background: #ff5252; border-color: #ff5252; color: white; }
+        .btn-generate { background: #00c853; border-color: #00c853; margin-left: auto; }
+        .btn-generate:hover { background: #00e676; border-color: #00e676; }
+        .btn-generate:disabled { background: #555; border-color: #555; cursor: not-allowed; }
+
+        .nav-group { display: flex; align-items: center; gap: 5px; background: #222; padding: 2px 8px; border-radius: 30px; border: 1px solid #444; flex-shrink: 0; }
+        
+        /* नया कलर पिकर बॉक्स डिज़ाइन */
+        .color-wrapper {
+            display: flex; align-items: center; background: #333; border: 1px solid #444; border-radius: 4px; overflow: hidden; height: 32px; width: 100%; box-sizing: border-box;
+        }
+        .color-wrapper input[type="color"] { width: 35px; height: 100%; padding: 0; border: none; cursor: pointer; background: transparent; }
+        .color-wrapper input[type="text"] { width: calc(100% - 35px); border: none; background: transparent; padding: 0 5px; text-transform: uppercase; outline: none; box-shadow: none; font-family: monospace; font-size: 12px; }
+        .nav-group span { font-size: 11px; font-weight: bold; width: 35px; text-align: center; }
+        .nav-btn { background: transparent; border: none; color: white; cursor: pointer; font-size: 14px; padding: 2px 5px; }
+        .nav-btn:hover { color: #ff5252; }
+
+        .dropdown-panel {
+            position: absolute; top: 55px; background: #252525; padding: 15px;
+            border-radius: 12px; border: 1px solid #444; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+            display: none; flex-direction: column; gap: 15px; z-index: 40; width: 320px;
+            max-height: calc(100vh - 80px); overflow-y: auto; transition: background 0.3s;
+        }
+        .dropdown-panel.show { display: flex; }
+        .dropdown-panel::-webkit-scrollbar { width: 5px; }
+        .dropdown-panel::-webkit-scrollbar-thumb { background: #666; border-radius: 5px; }
+
+        .preview-area { 
+            flex-grow: 1; display: flex; justify-content: center; align-items: center; 
+            background-color: #2c2c2c; background-image: radial-gradient(#444 1px, transparent 1px); background-size: 15px 15px;
+            overflow: hidden; position: relative; width: 100%; height: calc(100vh - 50px);
+        }
+
+        .section { display: flex; flex-direction: column; gap: 6px; background: #252525; padding: 10px; border-radius: 8px; border: 1px solid #333;}
+        label { font-weight: 600; color: #bbb; font-size: 11px; text-transform: uppercase;}
+        
+        input[type="file"], textarea, input[type="number"], input[type="text"], select { 
+            width: 100%; padding: 6px; border: 1px solid #444; border-radius: 4px; 
+            box-sizing: border-box; font-family: inherit; font-size: 13px; background: #333; color: white;
+        }
+        input[type="color"] { width: 100%; height: 30px; padding: 0; border: none; cursor: pointer; background: transparent; }
+        textarea { resize: vertical; height: 70px; }
+
+        .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .flex-row { display: flex; justify-content: space-between; gap: 5px; align-items: center;}
+        
+        .btn-small { background-color: #444; color: white; border: none; padding: 4px 8px; font-size: 11px; width: auto; border-radius: 4px; cursor: pointer;}
+        .btn-small:hover { background-color: #666; }
+        
+        .toggle-box { background: #1a1a1a; border: 1px solid #444; padding: 6px; border-radius: 5px; display: flex; align-items: center; gap: 5px; font-size: 12px; cursor: pointer;}
+        .toggle-box input { width: auto; margin: 0; cursor: pointer;}
+
+        .zoom-controls {
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8); padding: 5px 10px; border-radius: 30px;
+            display: flex; gap: 15px; align-items: center; z-index: 10; border: 1px solid #444; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .zoom-controls button { width: 30px; height: 30px; border-radius: 50%; padding: 0; font-size: 18px; background: #444; color: white; border: none; cursor: pointer;}
+        .zoom-controls button:hover { background: #666; }
+
+        #canvasWrapper {
+            position: relative; transform-origin: center; transition: transform 0.1s ease-out;
+            cursor: grab; display: none; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+        }
+        #canvasWrapper:active { cursor: grabbing; }
+        #previewCanvas { display: block; max-width: 100%; max-height: 90vh; pointer-events: none;}
+        #uploadPlaceholder { text-align: center; color: #777; font-size: 16px; position: absolute; top: 50%; transform: translateY(-50%);}
+        #hiddenCanvas { display: none; }
+
+        /* --- LIGHT THEME STYLES --- */
+        body.light-theme { background-color: #f0f2f5; color: #333; }
+        body.light-theme .top-toolbar { background: #ffffff; border-bottom: 1px solid #ddd; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        body.light-theme .capsule-btn { background: #e4e6eb; color: #050505; border-color: #ccc; }
+        body.light-theme .capsule-btn:hover, body.light-theme .capsule-btn.active { background: #ff5252; color: white; border-color: #ff5252; }
+        body.light-theme .btn-generate { background: #00c853; color: white; border-color: #00c853; }
+        body.light-theme .nav-group { background: #e4e6eb; border-color: #ccc; color: #333; }
+        body.light-theme .nav-btn { color: #333; }
+        body.light-theme .nav-btn:hover { color: #ff5252; }
+        body.light-theme .dropdown-panel { background: #ffffff; border: 1px solid #ddd; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        body.light-theme .section { background: #f7f8fa; border: 1px solid #e1e4e8; }
+        body.light-theme label { color: #555; }
+        body.light-theme input, body.light-theme select, body.light-theme textarea { background: #ffffff; color: #333; border: 1px solid #ccc; }
+        body.light-theme .toggle-box { background: #ffffff; border-color: #ccc; }
+        body.light-theme .preview-area { background-color: #e4e6eb; background-image: radial-gradient(#ccc 1px, transparent 1px); }
+      	body.light-theme .color-wrapper { background: #ffffff; border-color: #ccc; }
+        body.light-theme .color-wrapper input[type="text"] { color: #333; }
+      /* Download Modal Styles */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 100;
+        }
+        .modal-box {
+            background: #252525; padding: 20px; border-radius: 12px; border: 1px solid #444;
+            width: 320px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+        }
+        .modal-box h3 { margin: 0 0 10px 0; color: white; }
+        .modal-box p { color: #bbb; font-size: 13px; margin-bottom: 20px; }
+        .modal-buttons { display: flex; gap: 10px; justify-content: center; }
+        .modal-buttons .capsule-btn { flex: 1; justify-content: center; }
+        
+        body.light-theme .modal-box { background: #ffffff; border-color: #ddd; }
+        body.light-theme .modal-box h3 { color: #333; }
+        body.light-theme .modal-box p { color: #666; }
+        body.light-theme .zoom-controls { background: rgba(255, 255, 255, 0.9); border: 1px solid #ccc; }
+        body.light-theme .zoom-controls button { background: #e4e6eb; color: #333; }
+        body.light-theme .btn-small { background-color: #ccc; color: #333; }
+        body.light-theme .btn-small:hover { background-color: #aaa; }
+      @media (max-width: 600px) {
+            .dropdown-panel {
+                left: 10px !important;
+                right: 10px !important;
+                width: auto !important;
+                max-width: calc(100vw - 20px) !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-toolbar">
+    <h2 onclick="toggleTheme()" title="थीम बदलें">💍 MP</h2>
+    
+    <button class="capsule-btn" onclick="document.getElementById('projectUpload').click()" title="प्रोजेक्ट इम्पोर्ट करें">📂</button>
+    <button class="capsule-btn" onclick="exportProject()" title="प्रोजेक्ट सेव करें">💾</button>
+    
+    <button class="capsule-btn" onclick="document.getElementById('imageUpload').click()">📷 Upload Card</button>
+    
+    <button class="capsule-btn" onclick="toggleMenu('menu-names', this)">👥 Names</button>
+    <button class="capsule-btn" onclick="toggleMenu('menu-font', this)">🎨 Font</button>
+    <button class="capsule-btn" onclick="toggleMenu('menu-effects', this)">✨ Effect</button>
+    <button class="capsule-btn" onclick="toggleMenu('menu-layout', this)">📐 Text Area</button>
+    
+    <div class="nav-group" id="nameNavigator" style="display: none;">
+        <button class="nav-btn" onclick="changeNamePreview(-1)">◀</button>
+        <span id="nameCounter">0/0</span>
+        <button class="nav-btn" onclick="changeNamePreview(1)">▶</button>
+    </div>
+
+    <button class="capsule-btn" style="background: #25D366; border-color: #25D366; margin-left: auto;" onclick="shareSingleCard()">📲 शेयर</button>
+    <button class="capsule-btn btn-generate" id="generateBtn" onclick="document.getElementById('downloadModal').style.display='flex'" disabled style="margin-left: 5px;">📥 डाउनलोड</button>
+</div>
+
+<input type="file" id="imageUpload" accept="image/*" style="display:none;">
+<input type="file" id="projectUpload" accept=".json" style="display:none;">
+
+<div class="dropdown-panel" id="menu-names" style="left: 170px;">
+    <div class="section">
+        <div class="flex-row">
+            <label>2. मेहमानों के नाम</label>
+            <div><button class="btn-small" onclick="document.getElementById('csvUpload').click()">+ CSV Upload</button></div>
+        </div>
+        <input type="file" id="csvUpload" accept=".csv" style="display:none;">
+        <textarea id="manualNames" placeholder="रमेश जी&#10;विनोद मोरपा"></textarea>
+    </div>
+    <div class="section">
+        <label>3. नाम के आगे का टेक्स्ट</label>
+        <input type="text" id="suffixText" value=" सपरिवार पधारें">
+        <label class="toggle-box" style="margin-top: 5px;"><input type="checkbox" id="suffixNewLine"> ☑️ अगली लाइन से शुरू करें</label>
+    </div>
+</div>
+
+<div class="dropdown-panel" id="menu-font" style="left: 260px;">
+    <div class="section">
+        <label>4. फॉन्ट और स्टाइलिंग</label>
+        <div class="settings-grid">
+            <select id="fontFamily">
+                <option value="Kalam">Kalam</option>
+                <option value="Yatra One">Yatra One</option>
+                <option value="Caveat">Caveat</option>
+                <option value="Gotu">Gotu</option>
+                <option value="Mukta">Mukta</option>
+            </select>
+            <select id="fontStyle">
+                <option value="bold">Bold</option>
+                <option value="normal">Normal</option>
+                <option value="italic">Italic</option>
+                <option value="italic bold">Italic Bold</option>
+            </select>
+        </div>
+        <div class="settings-grid">
+            <div>
+    <label>कलर:</label>
+    <div class="color-wrapper">
+        <input type="color" id="fontColorPicker" value="#990000" oninput="document.getElementById('fontColor').value=this.value; updateLivePreview()">
+        <input type="text" id="fontColor" value="#990000" maxlength="7" oninput="document.getElementById('fontColorPicker').value=this.value; updateLivePreview()">
+    </div>
+</div>
+            <div><label>अलाइनमेंट:</label>
+                <select id="textAlign">
+                    <option value="center">Center</option>
+                    <option value="left">Left</option>
+                    <option value="right">Right</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="dropdown-panel" id="menu-effects" style="left: 350px; width: 340px;">
+    <div class="section">
+        <label>5. एडवांस इफेक्ट्स (Blend & Styles)</label>
+        
+      <div class="settings-grid">
+            <div>
+                <label>ब्लेंड मोड (20 Best):</label>
+                <select id="blendMode">
+                    <option value="source-over">Normal (सामान्य)</option>
+                    <option value="multiply">Multiply (डार्क मिक्स)</option>
+                    <option value="screen">Screen (लाइट मिक्स)</option>
+                    <option value="overlay">Overlay (टेक्सचर मिक्स)</option>
+                    <option value="darken">Darken (गहरा करें)</option>
+                    <option value="lighten">Lighten (हल्का करें)</option>
+                    <option value="color-dodge">Color Dodge (चमकदार)</option>
+                    <option value="color-burn">Color Burn (जला हुआ)</option>
+                    <option value="hard-light">Hard Light (तेज रौशनी)</option>
+                    <option value="soft-light">Soft Light (हल्की रौशनी)</option>
+                    <option value="difference">Difference (उल्टा रंग)</option>
+                    <option value="exclusion">Exclusion (सॉफ्ट उल्टा)</option>
+                    <option value="hue">Hue (रंग टोन)</option>
+                    <option value="saturation">Saturation (गहराई)</option>
+                    <option value="color">Color (सिर्फ रंग)</option>
+                    <option value="luminosity">Luminosity (चमक)</option>
+                    <option value="lighter">Lighter (प्लस लाइट)</option>
+                    <option value="source-atop">Source Atop (ऊपर फिक्स)</option>
+                    <option value="destination-over">Dest Over (पीछे भेजें)</option>
+                    <option value="xor">XOR (कटआउट मिक्स)</option>
+                </select>
+            </div>
+            <div>
+                <label>VIP प्रीमियम स्टाइल (20+):</label>
+                <select id="textStylePreset">
+                    <option value="none">कोई नहीं (Normal)</option>
+                    <option value="gold">👑 Royal Gold (शाही सुनहरा)</option>
+                    <option value="silver">💍 Classic Silver (चांदी)</option>
+                    <option value="rose-gold">🌸 Rose Gold (गुलाबी सोना)</option>
+                    <option value="platinum">⚙️ Platinum (प्लैटिनम)</option>
+                    <option value="bronze">🏺 Vintage Bronze (कांस्य)</option>
+                    <option value="copper">🟤 Shiny Copper (तांबा)</option>
+                    <option value="pearl">🐚 Pearl White (मोती)</option>
+                    <option value="emerald">💎 Emerald Green (पन्ना)</option>
+                    <option value="ruby">🔴 Ruby Red (माणिक)</option>
+                    <option value="sapphire">🔵 Sapphire Blue (नीलम)</option>
+                    <option value="diamond">✨ Diamond Glow</option>
+                    <option value="holographic">🌈 Holographic (3D रंगीन)</option>
+                    <option value="letterpress">🖨️ Letterpress (दबा हुआ)</option>
+                    <option value="neon-blue">⚡ Neon Blue (नियॉन)</option>
+                    <option value="neon-pink">⚡ Neon Pink</option>
+                    <option value="sunset">🌅 Golden Sunset</option>
+                    <option value="ocean">🌊 Deep Ocean</option>
+                    <option value="fire">🔥 Fire Flame</option>
+                    <option value="luxury-black">♠️ Luxury Matte Black</option>
+                    <option value="3d-pop">📦 3D Pop (उभरा हुआ)</option>
+                </select>
+            </div>
+        </div>
+      
+        <div class="settings-grid" style="margin-top: 8px;">
+            <label class="toggle-box"><input type="checkbox" id="isRainbow"> 🌈 रेनबो</label>
+            <label class="toggle-box"><input type="checkbox" id="isGlow"> ✨ नियोन ग्लो</label>
+        </div>
+
+        <label style="margin-top: 10px; display: block;">आउटलाइन (Outline):</label>
+        <div class="settings-grid">
+            <div><label>साइज:</label><input type="number" id="strokeWidth" value="0" min="0" max="15"></div>
+            <div>
+                <label>कलर:</label>
+                <div class="color-wrapper">
+                    <input type="color" id="strokeColorPicker" value="#ffffff" oninput="document.getElementById('strokeColor').value=this.value; updateLivePreview()">
+                    <input type="text" id="strokeColor" value="#ffffff" maxlength="7" oninput="document.getElementById('strokeColorPicker').value=this.value; updateLivePreview()">
+                </div>
+            </div>
+        </div>
+
+        <label style="margin-top: 10px; display: block;">कस्टम शैडो (3D Shadow):</label>
+        <div class="settings-grid">
+            <div><label>X दूरी (Left/Right):</label><input type="number" id="shadowOffsetX" value="3" min="-50" max="50"></div>
+            <div><label>Y दूरी (Up/Down):</label><input type="number" id="shadowOffsetY" value="3" min="-50" max="50"></div>
+            <div><label>ब्लर (Blur):</label><input type="number" id="shadowBlur" value="0" min="0" max="50"></div>
+            <div>
+                <label>कलर:</label>
+                <div class="color-wrapper">
+                    <input type="color" id="shadowColorPicker" value="#000000" oninput="document.getElementById('shadowColor').value=this.value; updateLivePreview()">
+                    <input type="text" id="shadowColor" value="#000000" maxlength="7" oninput="document.getElementById('shadowColorPicker').value=this.value; updateLivePreview()">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="dropdown-panel" id="menu-layout" style="left: 450px;">
+    <div class="section">
+        <label>6. टाइपोग्राफी और रोटेशन</label>
+        <div class="settings-grid">
+            <div><label>साइज:</label><input type="number" id="fontSize" value="55"></div>
+            <div><label>लाइन स्पेस:</label><input type="number" id="lineSpacing" value="1.5" step="0.1"></div>
+            <div><label>अक्षर दूरी:</label><input type="number" id="letterSpacing" value="0"></div>
+            <div><label>रोटेशन (Angle):</label><input type="number" id="textRotation" value="0"></div>
+            <div style="grid-column: span 2;"><label>पारदर्शिता (Opacity):</label><input type="number" id="textOpacity" value="1.0" step="0.1" min="0.1" max="1.0"></div>
+        </div>
+    </div>
+    <div class="section">
+        <label>7. एरिया सेटिंग्स (Drag box to move)</label>
+        <div class="settings-grid">
+            <div><label>X-Pos:</label><input type="number" id="xPos" value="200"></div>
+            <div><label>Y-Pos:</label><input type="number" id="yPos" value="400"></div>
+            <div><label>चौड़ाई (W):</label><input type="number" id="areaW" value="500"></div>
+            <div><label>ऊंचाई (H):</label><input type="number" id="areaH" value="200"></div>
+        </div>
+    </div>
+</div>
+
+<div class="preview-area" id="previewArea">
+    <div class="zoom-controls" id="zoomControls" style="display: none;">
+        <button onclick="zoomInOut(-0.1)" title="Zoom Out">-</button>
+        <button onclick="resetZoom()" style="width: auto; padding: 0 10px; font-size: 13px; border-radius: 15px;">Reset</button>
+        <button onclick="zoomInOut(0.1)" title="Zoom In">+</button>
+    </div>
+
+    <div id="uploadPlaceholder">
+        <h2>📷 खाली कार्ड अपलोड करें</h2>
+    </div>
+    
+    <div id="canvasWrapper" title="नाम बदलने के लिए बॉक्स पर क्लिक करें">
+        <canvas id="previewCanvas"></canvas>
+    </div>
+</div>
+  <div class="modal-overlay" id="downloadModal">
+    <div class="modal-box">
+        <h3>📥 डाउनलोड विकल्प</h3>
+        <p>आप क्या डाउनलोड करना चाहते हैं?</p>
+        <div class="modal-buttons">
+            <button class="capsule-btn" style="background:#2196F3; border-color:#2196F3;" onclick="downloadSingleCard()">सिर्फ यह कार्ड</button>
+            <button class="capsule-btn btn-generate" onclick="startBulkDownload()">सभी कार्ड्स</button>
+        </div>
+        <button class="capsule-btn" style="background:#555; border-color:#555; margin-top:15px; width:100%; justify-content:center;" onclick="document.getElementById('downloadModal').style.display='none'">❌ रद्द करें (Cancel)</button>
+    </div>
+</div>
+
+<canvas id="hiddenCanvas"></canvas>
+
+<script>
+  const elements = {
+        imageUpload: document.getElementById('imageUpload'), csvUpload: document.getElementById('csvUpload'),
+        manualNames: document.getElementById('manualNames'), suffixText: document.getElementById('suffixText'),
+        suffixNewLine: document.getElementById('suffixNewLine'), fontFamily: document.getElementById('fontFamily'), 
+        fontStyle: document.getElementById('fontStyle'), fontColor: document.getElementById('fontColor'), 
+        textAlign: document.getElementById('textAlign'), blendMode: document.getElementById('blendMode'),
+        textStylePreset: document.getElementById('textStylePreset'), isRainbow: document.getElementById('isRainbow'), 
+        isGlow: document.getElementById('isGlow'), strokeWidth: document.getElementById('strokeWidth'), 
+        strokeColor: document.getElementById('strokeColor'), shadowOffsetX: document.getElementById('shadowOffsetX'),
+        shadowOffsetY: document.getElementById('shadowOffsetY'), shadowBlur: document.getElementById('shadowBlur'), 
+        shadowColor: document.getElementById('shadowColor'), fontSize: document.getElementById('fontSize'), 
+        lineSpacing: document.getElementById('lineSpacing'), letterSpacing: document.getElementById('letterSpacing'), 
+        textRotation: document.getElementById('textRotation'), textOpacity: document.getElementById('textOpacity'), 
+        xPos: document.getElementById('xPos'), yPos: document.getElementById('yPos'), 
+        areaW: document.getElementById('areaW'), areaH: document.getElementById('areaH'), 
+        previewCanvas: document.getElementById('previewCanvas'), canvasWrapper: document.getElementById('canvasWrapper'), 
+        hiddenCanvas: document.getElementById('hiddenCanvas'), generateBtn: document.getElementById('generateBtn')
+    };
+    
+    let baseImage = new Image();
+    let isImageLoaded = false;
+    let currentPreviewIndex = 0; // For Next/Prev Name Preview
+
+    let scale = 1, panX = 0, panY = 0;
+    let initialPinchDistance = null, lastTapTime = 0;
+    let isDraggingCanvas = false, isDraggingText = false;
+    let startX, startY, textDragStartX, textDragStartY, initialTx, initialTy; 
+    let hasMoved = false;
+
+    // Theme Toggle Function
+    function toggleTheme() {
+        document.body.classList.toggle('light-theme');
+        localStorage.setItem('weddingCardTheme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+    }
+
+    // Dropdown Menu Logic
+    function toggleMenu(menuId, btnElement) {
+        document.querySelectorAll('.dropdown-panel').forEach(panel => {
+            if(panel.id !== menuId) panel.classList.remove('show');
+        });
+        document.querySelectorAll('.capsule-btn').forEach(btn => {
+            if(btn !== btnElement && !btn.classList.contains('btn-generate')) btn.classList.remove('active');
+        });
+        const panel = document.getElementById(menuId);
+        panel.classList.toggle('show');
+        if(btnElement) btnElement.classList.toggle('active');
+    }
+
+    document.addEventListener('mousedown', (e) => {
+        if (!e.target.closest('.dropdown-panel') && !e.target.closest('.top-toolbar')) {
+            document.querySelectorAll('.dropdown-panel').forEach(p => p.classList.remove('show'));
+            document.querySelectorAll('.capsule-btn').forEach(b => b.classList.remove('active'));
+        }
+    });
+
+    // Zoom & Pan Logic
+    function updateTransform() { elements.canvasWrapper.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`; }
+    
+    function zoomInOut(amount) {
+        if (!isImageLoaded) return;
+        scale += amount;
+        if (scale < 0.2) scale = 0.2; if (scale > 5) scale = 5;
+        updateTransform();
+    }
+    
+    function resetZoom() { scale = 1; panX = 0; panY = 0; updateTransform(); }
+
+    // Mouse Wheel Zoom
+    elements.canvasWrapper.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        if (e.deltaY < 0) zoomInOut(0.05); // Scroll up -> Zoom in
+        else zoomInOut(-0.05);             // Scroll down -> Zoom out
+    });
+    
+    // Drag, Pan, and Click-to-Edit Logic
+    function handlePointerDown(e, clientX, clientY) {
+        const rect = elements.canvasWrapper.getBoundingClientRect();
+        const scaleX = baseImage.width / rect.width;
+        const scaleY = baseImage.height / rect.height;
+        const canvasClickX = (clientX - rect.left) * scaleX;
+        const canvasClickY = (clientY - rect.top) * scaleY;
+
+        const tx = parseInt(elements.xPos.value), ty = parseInt(elements.yPos.value);
+        const tw = parseInt(elements.areaW.value), th = parseInt(elements.areaH.value);
+
+        hasMoved = false;
+        if (canvasClickX >= tx && canvasClickX <= tx + tw && canvasClickY >= ty && canvasClickY <= ty + th) {
+            isDraggingText = true; isDraggingCanvas = false;
+            textDragStartX = clientX; textDragStartY = clientY;
+            initialTx = tx; initialTy = ty;
+            elements.canvasWrapper.style.cursor = 'move';
+            e.stopPropagation();
+        } else {
+            isDraggingCanvas = true; isDraggingText = false;
+            startX = clientX - panX; startY = clientY - panY;
+            elements.canvasWrapper.style.cursor = 'grabbing';
+        }
+        elements.canvasWrapper.style.transition = 'none';
+    }
+
+    function handlePointerMove(e, clientX, clientY) {
+        if (isDraggingText) {
+            hasMoved = true;
+            const rect = elements.canvasWrapper.getBoundingClientRect();
+            const scaleX = baseImage.width / rect.width;
+            const scaleY = baseImage.height / rect.height;
+            elements.xPos.value = Math.round(initialTx + ((clientX - textDragStartX) * scaleX));
+            elements.yPos.value = Math.round(initialTy + ((clientY - textDragStartY) * scaleY));
+            updateLivePreview();
+        } else if (isDraggingCanvas) {
+            hasMoved = true;
+            panX = clientX - startX; panY = clientY - startY;
+            updateTransform();
+        }
+    }
+
+    function handlePointerUp() {
+        // If clicked on text box without dragging, trigger EDIT NAME
+        if (isDraggingText && !hasMoved) {
+            let namesList = elements.manualNames.value.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+            if(namesList.length > 0) {
+                let currentName = namesList[currentPreviewIndex];
+                let newName = prompt("यहाँ मेहमान का नाम सुधारें:", currentName);
+                if(newName !== null && newName.trim() !== "") {
+                    namesList[currentPreviewIndex] = newName.trim();
+                    elements.manualNames.value = namesList.join('\n');
+                    updateLivePreview();
+                }
+            }
+        }
+        isDraggingCanvas = false; isDraggingText = false;
+        elements.canvasWrapper.style.cursor = 'grab';
+        elements.canvasWrapper.style.transition = 'transform 0.1s ease-out';
+    }
+
+    elements.canvasWrapper.addEventListener('mousedown', (e) => handlePointerDown(e, e.clientX, e.clientY));
+    window.addEventListener('mousemove', (e) => { if (isDraggingCanvas || isDraggingText) handlePointerMove(e, e.clientX, e.clientY); });
+    window.addEventListener('mouseup', handlePointerUp);
+
+    elements.canvasWrapper.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) handlePointerDown(e, e.touches[0].clientX, e.touches[0].clientY);
+        else if (e.touches.length === 2) {
+            isDraggingCanvas = false; isDraggingText = false;
+            initialPinchDistance = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+        }
+    }, {passive: false});
+
+    elements.canvasWrapper.addEventListener('touchmove', (e) => {
+        if (isDraggingCanvas || isDraggingText) e.preventDefault();
+        if ((isDraggingCanvas || isDraggingText) && e.touches.length === 1) handlePointerMove(e, e.touches[0].clientX, e.touches[0].clientY);
+        else if (e.touches.length === 2 && initialPinchDistance) {
+            let currentDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+            scale += (currentDist - initialPinchDistance) * 0.005;
+            if (scale < 0.2) scale = 0.2; if (scale > 5) scale = 5;
+            initialPinchDistance = currentDist; updateTransform();
+        }
+    }, {passive: false});
+
+    elements.canvasWrapper.addEventListener('touchend', (e) => {
+        handlePointerUp(); initialPinchDistance = null;
+    });
+
+    // Save & Load Data
+    function saveSettingsData() {
+        const settingsToSave = {};
+        Object.keys(elements).forEach(key => {
+            const el = elements[key];
+            if (el && (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA')) {
+                if (el.type === 'checkbox') settingsToSave[key] = el.checked;
+                else if (el.type !== 'file') settingsToSave[key] = el.value;
+            }
+        });
+        localStorage.setItem('weddingCardSettings', JSON.stringify(settingsToSave));
+        
+        // Fix for LocalStorage Image save (Save Compressed to avoid quota error)
+        try {
+            if (isImageLoaded) {
+                localStorage.removeItem('weddingCardBgImage'); // Remove old first
+                let tempCan = document.createElement('canvas');
+                let tCtx = tempCan.getContext('2d');
+                let ratio = baseImage.width > 1200 ? 1200 / baseImage.width : 1;
+                tempCan.width = baseImage.width * ratio; tempCan.height = baseImage.height * ratio;
+                tCtx.drawImage(baseImage, 0, 0, tempCan.width, tempCan.height);
+                localStorage.setItem('weddingCardBgImage', tempCan.toDataURL('image/jpeg', 0.6));
+            }
+        } catch(e) { console.warn("इमेज साइज़ बहुत बड़ा है, बैकअप सेव नहीं हुआ।"); }
+    }
+
+    function loadSettingsData() {
+        if(localStorage.getItem('weddingCardTheme') === 'light') document.body.classList.add('light-theme');
+        
+        const savedData = JSON.parse(localStorage.getItem('weddingCardSettings'));
+        if (savedData) {
+            Object.keys(savedData).forEach(key => {
+                if (elements[key]) {
+                    if (elements[key].type === 'checkbox') elements[key].checked = savedData[key];
+                    else if (elements[key].type !== 'file') elements[key].value = savedData[key];
+                }
+            });
+        }
+      
+      	// कलर पिकर और टेक्स्ट बॉक्स को सिंक करें
+        ['fontColor', 'strokeColor', 'shadowColor'].forEach(id => {
+            const el = document.getElementById(id);
+            const picker = document.getElementById(id + 'Picker');
+            if(el && picker) picker.value = el.value;
+        });
+        
+        const savedImage = localStorage.getItem('weddingCardBgImage');
+     
+        if (savedImage) {
+            baseImage.onload = function() {
+                isImageLoaded = true;
+                elements.canvasWrapper.style.display = 'block';
+                document.getElementById('uploadPlaceholder').style.display = 'none';
+                document.getElementById('zoomControls').style.display = 'flex';
+                elements.generateBtn.disabled = false;
+                resetZoom(); updateLivePreview();
+            }
+            baseImage.src = savedImage;
+        }
+        updateNameCounter();
+    }
+
+    // Name Navigation Logic (Next/Prev)
+    function updateNameCounter() {
+        let namesList = elements.manualNames.value.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+        const nav = document.getElementById('nameNavigator');
+        if(namesList.length === 0) {
+            nav.style.display = 'none';
+            currentPreviewIndex = 0;
+        } else {
+            nav.style.display = 'flex';
+            if(currentPreviewIndex >= namesList.length) currentPreviewIndex = namesList.length - 1;
+            if(currentPreviewIndex < 0) currentPreviewIndex = 0;
+            document.getElementById('nameCounter').innerText = `${currentPreviewIndex + 1}/${namesList.length}`;
+        }
+    }
+
+    function changeNamePreview(direction) {
+        let namesList = elements.manualNames.value.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+        if (namesList.length === 0) return;
+        currentPreviewIndex += direction;
+        if (currentPreviewIndex < 0) currentPreviewIndex = 0;
+        if (currentPreviewIndex >= namesList.length) currentPreviewIndex = namesList.length - 1;
+        updateLivePreview();
+    }
+
+    // Core Drawing Function
+    function drawCard(ctx, showBoundingBox) {
+        if (!isImageLoaded) return;
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.drawImage(baseImage, 0, 0, ctx.canvas.width, ctx.canvas.height);
+
+        let namesList = elements.manualNames.value.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+        let baseName = namesList.length > 0 ? namesList[currentPreviewIndex] : "सैम्पल नाम";
+        let suffix = elements.suffixText.value;
+        let textToDraw = baseName + (elements.suffixNewLine.checked ? "\n" + suffix.trim() : suffix);
+
+        const x = parseInt(elements.xPos.value); const y = parseInt(elements.yPos.value);
+        const w = parseInt(elements.areaW.value); const h = parseInt(elements.areaH.value);
+        const size = parseInt(elements.fontSize.value); const lSpace = parseFloat(elements.lineSpacing.value);
+        const align = elements.textAlign.value;
+        const angle = parseFloat(elements.textRotation.value) || 0;
+
+        ctx.save();
+        const cx = x + (w / 2), cy = y + (h / 2);
+        ctx.translate(cx, cy); ctx.rotate(angle * Math.PI / 180); ctx.translate(-cx, -cy);
+
+        if (showBoundingBox) {
+            ctx.strokeStyle = "rgba(255, 0, 0, 0.7)"; 
+            ctx.setLineDash([8, 8]); ctx.lineWidth = 2; ctx.strokeRect(x, y, w, h); ctx.setLineDash([]); 
+            
+            // Draw Edit Hint
+            ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+            ctx.fillRect(x, y - 25, 140, 22);
+            ctx.fillStyle = "#fff"; ctx.font = "14px Arial"; ctx.textAlign = "left"; ctx.textBaseline = "top";
+            ctx.fillText("✏️ Click box to Edit", x + 5, y - 21);
+        }
+
+        ctx.globalAlpha = parseFloat(elements.textOpacity.value) || 1.0;
+        ctx.globalCompositeOperation = elements.blendMode.value;
+
+        ctx.font = `${elements.fontStyle.value} ${size}px "${elements.fontFamily.value}", sans-serif`; 
+        ctx.textBaseline = "top"; ctx.textAlign = align;
+        if ('letterSpacing' in ctx) ctx.letterSpacing = elements.letterSpacing.value + "px";
+
+       let preset = elements.textStylePreset.value;
+        let grad;
+        
+        // 20+ VIP Gradient Colors Logic
+        if (elements.isRainbow.checked) {
+            grad = ctx.createLinearGradient(x, y, x + w, y);
+            grad.addColorStop(0, "#FF0000"); grad.addColorStop(0.2, "#FF7F00"); grad.addColorStop(0.4, "#FFFF00"); 
+            grad.addColorStop(0.6, "#00FF00"); grad.addColorStop(0.8, "#0000FF"); grad.addColorStop(1, "#9400D3");
+            ctx.fillStyle = grad;
+        } else if (preset !== 'none' && preset !== '3d-pop' && preset !== 'letterpress') {
+            grad = ctx.createLinearGradient(x, y, x, y + h);
+            switch(preset) {
+                case 'gold': grad.addColorStop(0, '#BF953F'); grad.addColorStop(0.5, '#FCF6BA'); grad.addColorStop(1, '#AA771C'); break;
+                case 'silver': grad.addColorStop(0, '#8A8A8A'); grad.addColorStop(0.5, '#E8E8E8'); grad.addColorStop(1, '#949494'); break;
+                case 'rose-gold': grad.addColorStop(0, '#B76E79'); grad.addColorStop(0.5, '#E0BFB8'); grad.addColorStop(1, '#C07C88'); break;
+                case 'platinum': grad.addColorStop(0, '#D5D7E5'); grad.addColorStop(0.5, '#F8F9FA'); grad.addColorStop(1, '#B3B6C5'); break;
+                case 'bronze': grad.addColorStop(0, '#CD7F32'); grad.addColorStop(0.5, '#FAD6A5'); grad.addColorStop(1, '#8B5A2B'); break;
+                case 'copper': grad.addColorStop(0, '#B87333'); grad.addColorStop(0.5, '#FFA07A'); grad.addColorStop(1, '#8B4513'); break;
+                case 'pearl': grad.addColorStop(0, '#FDEEF4'); grad.addColorStop(0.5, '#FFFFFF'); grad.addColorStop(1, '#E0E5EC'); break;
+                case 'emerald': grad.addColorStop(0, '#046307'); grad.addColorStop(0.5, '#00FF00'); grad.addColorStop(1, '#013220'); break;
+                case 'ruby': grad.addColorStop(0, '#9B111E'); grad.addColorStop(0.5, '#FF0800'); grad.addColorStop(1, '#4A0404'); break;
+                case 'sapphire': grad.addColorStop(0, '#0F52BA'); grad.addColorStop(0.5, '#6495ED'); grad.addColorStop(1, '#000080'); break;
+                case 'diamond': grad.addColorStop(0, '#E0F7FA'); grad.addColorStop(0.5, '#FFFFFF'); grad.addColorStop(1, '#B2EBF2'); break;
+                case 'holographic': grad.addColorStop(0, '#FF6B6B'); grad.addColorStop(0.3, '#4ECDC4'); grad.addColorStop(0.6, '#45B7D1'); grad.addColorStop(1, '#96CEB4'); break;
+                case 'sunset': grad.addColorStop(0, '#FF512F'); grad.addColorStop(1, '#F09819'); break;
+                case 'ocean': grad.addColorStop(0, '#2193b0'); grad.addColorStop(1, '#6dd5ed'); break;
+                case 'fire': grad.addColorStop(0, '#ff9900'); grad.addColorStop(0.5, '#ff0000'); grad.addColorStop(1, '#8a0000'); break;
+                case 'luxury-black': grad.addColorStop(0, '#434343'); grad.addColorStop(1, '#000000'); break;
+                case 'neon-blue': ctx.fillStyle = '#00FFFF'; break;
+                case 'neon-pink': ctx.fillStyle = '#FF00FF'; break;
+                default: ctx.fillStyle = elements.fontColor.value;
+            }
+            if(preset !== 'neon-blue' && preset !== 'neon-pink') ctx.fillStyle = grad;
+        } else {
+            ctx.fillStyle = elements.fontColor.value;
+        }
+
+        // 20+ VIP Shadow & Glow Logic
+        if (elements.isGlow.checked) {
+            ctx.shadowColor = elements.fontColor.value; ctx.shadowBlur = 20; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
+        } else if (preset === 'neon-blue') {
+            ctx.shadowColor = '#00FFFF'; ctx.shadowBlur = 15; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
+        } else if (preset === 'neon-pink') {
+            ctx.shadowColor = '#FF00FF'; ctx.shadowBlur = 15; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
+        } else if (preset === 'diamond') {
+            ctx.shadowColor = '#FFFFFF'; ctx.shadowBlur = 12; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
+        } else if (preset === '3d-pop') {
+            ctx.shadowColor = elements.shadowColor.value; ctx.shadowBlur = 0; 
+            ctx.shadowOffsetX = parseFloat(elements.shadowOffsetX.value) || 4; 
+            ctx.shadowOffsetY = parseFloat(elements.shadowOffsetY.value) || 4;
+        } else if (preset === 'letterpress') {
+            ctx.shadowColor = 'rgba(255, 255, 255, 0.7)'; ctx.shadowBlur = 1; 
+            ctx.shadowOffsetX = 1; ctx.shadowOffsetY = 1;
+        } else if (parseFloat(elements.shadowBlur.value) > 0 || parseFloat(elements.shadowOffsetX.value) !== 0 || parseFloat(elements.shadowOffsetY.value) !== 0) {
+            ctx.shadowColor = elements.shadowColor.value; 
+            ctx.shadowBlur = parseFloat(elements.shadowBlur.value);
+            ctx.shadowOffsetX = parseFloat(elements.shadowOffsetX.value); 
+            ctx.shadowOffsetY = parseFloat(elements.shadowOffsetY.value);
+        } else {
+            ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
+        }
+
+        let drawX = align === "center" ? x + (w / 2) : (align === "right" ? x + w : x);
+        const strokeW = parseFloat(elements.strokeWidth.value);
+        if (strokeW > 0) { ctx.strokeStyle = elements.strokeColor.value; ctx.lineWidth = strokeW; ctx.lineJoin = "round"; }
+
+        let paragraphs = textToDraw.split('\n');
+        let currentY = y; const lineHeightPx = size * lSpace;
+
+        for (let p = 0; p < paragraphs.length; p++) {
+            let words = paragraphs[p].split(' '); let line = ''; 
+            for(let n = 0; n < words.length; n++) {
+                let testLine = line + words[n] + ' ';
+                if (ctx.measureText(testLine).width > w && n > 0) {
+                    if (currentY + lineHeightPx > y + h) break; 
+                    if (strokeW > 0) ctx.strokeText(line.trim(), drawX, currentY);
+                    ctx.fillText(line.trim(), drawX, currentY);
+                    line = words[n] + ' '; currentY += lineHeightPx;
+                } else line = testLine; 
+            }
+            if (currentY + size <= y + h) {
+                if (strokeW > 0) ctx.strokeText(line.trim(), drawX, currentY);
+                ctx.fillText(line.trim(), drawX, currentY);
+                currentY += lineHeightPx; 
+            }
+        }
+        ctx.restore();
+    }
+
+    function updateLivePreview() {
+        if (!isImageLoaded) return;
+        elements.previewCanvas.width = baseImage.width; elements.previewCanvas.height = baseImage.height;
+        updateNameCounter();
+        document.fonts.ready.then(() => drawCard(elements.previewCanvas.getContext('2d'), true));
+        saveSettingsData(); 
+    }
+
+    const inputEvents = ['manualNames', 'suffixText', 'suffixNewLine', 'fontFamily', 'fontStyle', 'fontColor', 'textAlign', 'blendMode', 'textStylePreset', 'isRainbow', 'isGlow', 'strokeWidth', 'strokeColor', 'shadowOffsetX', 'shadowOffsetY', 'shadowBlur', 'shadowColor', 'fontSize', 'lineSpacing', 'letterSpacing', 'textRotation', 'textOpacity', 'xPos', 'yPos', 'areaW', 'areaH'];
+    inputEvents.forEach(id => { if(document.getElementById(id)) document.getElementById(id).addEventListener('input', updateLivePreview); });
+
+    elements.imageUpload.addEventListener('change', function(e) {
+        if(e.target.files && e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                baseImage.onload = function() {
+                    isImageLoaded = true;
+                    elements.canvasWrapper.style.display = 'block';
+                    document.getElementById('uploadPlaceholder').style.display = 'none';
+                    document.getElementById('zoomControls').style.display = 'flex';
+                    elements.generateBtn.disabled = false;
+                    resetZoom(); updateLivePreview();
+                }
+                baseImage.src = event.target.result;
+            }
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    });
+
+    elements.csvUpload.addEventListener('change', async function(e) {
+        if (e.target.files[0]) {
+            const text = await e.target.files[0].text();
+            const imported = text.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+            elements.manualNames.value += '\n' + imported.join('\n');
+            elements.manualNames.value = elements.manualNames.value.trim();
+            updateLivePreview();
+        }
+    });
+
+  	async function shareSingleCard() {
+        let namesList = elements.manualNames.value.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+        if (namesList.length === 0) return alert("नाम टाइप करें!");
+
+        const hCanvas = elements.hiddenCanvas;
+        const ctx = hCanvas.getContext('2d');
+        hCanvas.width = baseImage.width; 
+        hCanvas.height = baseImage.height;
+
+        ctx.clearRect(0, 0, hCanvas.width, hCanvas.height);
+        drawCard(ctx, false);
+
+        hCanvas.toBlob(async (blob) => {
+            const fileName = namesList[currentPreviewIndex].replace(/[<>:"\/\\|?*]+/g, '') + '_Card.jpg';
+            const file = new File([blob], fileName, { type: 'image/jpeg' });
+
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                try {
+                    let cleanName = namesList[currentPreviewIndex].replace(/\s+/g, ' ').trim();
+                   await navigator.share({
+                        files: [file]
+                    });
+                } catch (error) {
+                    console.log('Share cancelled', error);
+                }
+            } else {
+                alert("आपके ब्राउज़र या डिवाइस में डायरेक्ट इमेज शेयर सपोर्ट नहीं है। कृपया डाउनलोड बटन का उपयोग करें।");
+            }
+        }, 'image/jpeg', 0.9);
+    }
+  async function downloadSingleCard() {
+        document.getElementById('downloadModal').style.display = 'none';
+        let namesList = elements.manualNames.value.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+        if (namesList.length === 0) return alert("नाम टाइप करें!");
+
+        // Hidden canvas uses Original Image size
+        const hCanvas = elements.hiddenCanvas;
+        const ctx = hCanvas.getContext('2d');
+        hCanvas.width = baseImage.width; hCanvas.height = baseImage.height;
+
+        ctx.clearRect(0, 0, hCanvas.width, hCanvas.height);
+        drawCard(ctx, false); // currentPreviewIndex is drawn
+
+        const link = document.createElement('a');
+        link.download = namesList[currentPreviewIndex].replace(/[<>:"\/\\|?*]+/g, '') + '_Card.jpg';
+        link.href = hCanvas.toDataURL('image/jpeg', 1.0);
+        link.click();
+    }
+
+    async function startBulkDownload() {
+        document.getElementById('downloadModal').style.display = 'none';
+        let names = elements.manualNames.value.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+        if (names.length === 0) return alert("नाम टाइप करें!");
+
+        const hCanvas = elements.hiddenCanvas;
+        const ctx = hCanvas.getContext('2d');
+        hCanvas.width = baseImage.width; hCanvas.height = baseImage.height;
+
+        elements.generateBtn.innerText = "⏳ प्रोसेसिंग..."; elements.generateBtn.disabled = true;
+
+        let originalIndex = currentPreviewIndex; 
+        for (let i = 0; i < names.length; i++) {
+            ctx.clearRect(0, 0, hCanvas.width, hCanvas.height);
+            currentPreviewIndex = i; 
+            drawCard(ctx, false);
+            
+            const link = document.createElement('a');
+            link.download = names[i].replace(/[<>:"\/\\|?*]+/g, '') + '_Card.jpg';
+            link.href = hCanvas.toDataURL('image/jpeg', 1.0);
+            link.click();
+            await new Promise(r => setTimeout(r, 400)); 
+        }
+        
+        currentPreviewIndex = originalIndex; 
+        updateLivePreview();
+        
+        elements.generateBtn.innerText = "📥 डाउनलोड"; elements.generateBtn.disabled = false;
+        alert("🎉 सभी कार्ड्स तैयार हैं!");
+    }
+// === SETTINGS EXPORT & IMPORT LOGIC ===
+    function exportProject() {
+        saveSettingsData(); // Make sure latest changes are saved
+        const settings = localStorage.getItem('weddingCardSettings');
+        
+        // अब हम इमेज नहीं, सिर्फ सेटिंग्स ले रहे हैं
+        const projectData = {
+            settings: settings ? JSON.parse(settings) : {}
+        };
+        
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(projectData));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "Wedding_Settings.json"); // JSON फाइल के रूप में सेव होगा
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    }
+
+    document.getElementById('projectUpload').addEventListener('change', function(e) {
+        if(e.target.files && e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const projectData = JSON.parse(event.target.result);
+                    if (projectData.settings) {
+                        localStorage.setItem('weddingCardSettings', JSON.stringify(projectData.settings));
+                        loadSettingsData(); // नया डेटा लोड करें
+                        updateLivePreview(); // कैनवस को तुरंत अपडेट करें
+                        alert("🎉 सेटिंग्स सफलतापूर्वक लोड हो गईं!");
+                    } else {
+                        alert("❌ इस फाइल में सेटिंग्स का डेटा नहीं है!");
+                    }
+                } catch(err) {
+                    alert("❌ फाइल सही नहीं है या करप्ट JSON है!");
+                }
+            };
+            reader.readAsText(e.target.files[0]);
+        }
+        // फाइल इनपुट को क्लियर करें ताकि सेम फाइल दोबारा अपलोड हो सके
+        e.target.value = '';
+    });
+    // =====================================
+    window.onload = loadSettingsData;
+</script>
+<script>
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js');
+</script>
+</body>
+</html>
